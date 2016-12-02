@@ -19,7 +19,7 @@ var Cookie = {};
  * Setting some defaults.
  * @param cName     Name of the cookie
  * @param xDays     Days until cookie expires (optional)
- * @param defPath   Path (optional)
+ * @param path      Path (optional)
  */
 Cookie = function (cName, xDays, path)
 {
@@ -33,14 +33,12 @@ Cookie = function (cName, xDays, path)
  * Add a parameter or overwrite its value. If the cookie doesn´t exist, it will be created.
  * @param cParam    Name of the parameter
  * @param pValue    Value of the parameter
- * @param xDays     Days until cookie expires
- * @param path      Path
  */
 Cookie.prototype.set = function (cParam, pValue)
 {
     var valObj = {};
     valObj[cParam] = pValue;
-    var curVal = this.get(this.cName) ? JSON.parse(this.get(this.cName)) : null;
+    var curVal = this.get() ? JSON.parse(this.get()) : null;
     var newVal = curVal ? $.extend(curVal, valObj) : valObj;
     var newCookieVal = JSON.stringify(newVal);
 
@@ -50,12 +48,12 @@ Cookie.prototype.set = function (cParam, pValue)
         date.setTime(date.getTime() + (this.xDays * 24 * 60 * 60 * 1000));
         expires = ";expires=" + date.toUTCString();
     }
-        
+
     var path = "";
     if(this.path) {
         path = ";path=" + this.path;
     }
-        
+
     document.cookie = this.cName + "=" + newCookieVal + expires + path;
 };
 
@@ -90,29 +88,31 @@ Cookie.prototype.get = function (cParam)
 /**
  * Delete a single parameter of the cookie
  * @param cParam
- * @param xDays
- * @param path
  */
 Cookie.prototype.clear = function (cParam)
 {
-    if (this.get(this.cName)) {
-        var curVal = JSON.parse(this.get(this.cName));
+    if (this.get()) {
+        var curVal = JSON.parse(this.get());
         delete curVal[cParam];
-        var newCookieVal = JSON.stringify(curVal);
+        if ($.isEmptyObject(curVal)) {
+            this.remove();
+        } else {
+            var newCookieVal = JSON.stringify(curVal);
 
-        var expires = "";
-        if(this.xDays) {
-            var date = new Date();
-            date.setTime(date.getTime() + (this.xDays * 24 * 60 * 60 * 1000));
-            expires = ";expires=" + date.toUTCString();
+            var expires = "";
+            if(this.xDays) {
+                var date = new Date();
+                date.setTime(date.getTime() + (this.xDays * 24 * 60 * 60 * 1000));
+                expires = ";expires=" + date.toUTCString();
+            }
+
+            var path = "";
+            if(this.path) {
+                path = ";path=" + this.path;
+            }
+
+            document.cookie = this.cName + "=" + newCookieVal + expires + path; 
         }
-        
-        var path = "";
-        if(this.path) {
-            path = ";path=" + this.path;
-        }
-        
-        document.cookie = this.cName + "=" + newCookieVal + expires + path;
     }
 };
 
@@ -120,7 +120,7 @@ Cookie.prototype.clear = function (cParam)
 /**
  * Remove the cookie
  */
-Cookie.prototype.delete = function ()
+Cookie.prototype.remove = function ()
 {
     document.cookie = this.cName + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC";
 };
