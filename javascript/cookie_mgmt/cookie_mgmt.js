@@ -36,25 +36,27 @@ Cookie = function (cName, xDays, path)
  */
 Cookie.prototype.set = function (cParam, pValue)
 {
-    var valObj = {};
-    valObj[cParam] = pValue;
-    var curVal = this.get() ? JSON.parse(this.get()) : null;
-    var newVal = curVal ? $.extend(curVal, valObj) : valObj;
-    var newCookieVal = JSON.stringify(newVal);
+    if (pValue) {
+        var valObj = {};
+        valObj[cParam] = pValue;
+        var curVal = this.get() ? JSON.parse(this.get()) : null;
+        var newVal = curVal ? $.extend(curVal, valObj) : valObj;
+        var newCookieVal = JSON.stringify(newVal);
 
-    var expires = "";
-    if(this.xDays) {
-        var date = new Date();
-        date.setTime(date.getTime() + (this.xDays * 24 * 60 * 60 * 1000));
-        expires = ";expires=" + date.toUTCString();
+        var expires = "";
+        if(this.xDays) {
+            var date = new Date();
+            date.setTime(date.getTime() + (this.xDays * 24 * 60 * 60 * 1000));
+            expires = ";expires=" + date.toUTCString();
+        }
+
+        var path = "";
+        if(this.path) {
+            path = ";path=" + this.path;
+        }
+
+        document.cookie = this.cName + "=" + newCookieVal + expires + path;
     }
-
-    var path = "";
-    if(this.path) {
-        path = ";path=" + this.path;
-    }
-
-    document.cookie = this.cName + "=" + newCookieVal + expires + path;
 };
 
 
